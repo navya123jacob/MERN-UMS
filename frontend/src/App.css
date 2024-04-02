@@ -1,0 +1,35 @@
+/* register */
+.register-screen-bg {
+  background-image: url('./assets/pexels-icon-com-479333.jpg');
+  min-height: 130vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+
+  Form {
+    background-color: rgba(255, 255, 255, 0.6); 
+    padding: 40px; 
+    border-radius: 10px; 
+  }
+
+
+
+  /* Home */
+  .home-screen-bg {
+    background-image: url('./assets/Home1.jpg');
+    background-size:cover;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .cardInner {
+    background-color: rgba(255, 255, 255, 0.4); 
+    font-weight:500;
+    padding: 30px; }
+  
