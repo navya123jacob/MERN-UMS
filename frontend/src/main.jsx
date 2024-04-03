@@ -11,6 +11,10 @@ import { Provider } from 'react-redux';
 import store from './Store.js';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import AdminLogin from './Screens/adminScreens/adminLogin.jsx';
+import AdminHome from './Screens/adminScreens/AdminBody.jsx';
+import AdminDashboard from './Screens/adminScreens/adminDashboard.jsx';
+
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <Provider store={store}>
@@ -21,6 +25,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/profile" element={<EditProfile />} />
           <Route path="/login" element={<LoginScreen />} />
           <Route path="/register" element={<RegisterScreen />} />
+          <Route path="/admin" element={<AdminLogin />} />
+          <Route path='/admin/home' element={<AdminHome/> } /> 
+          <Route path='/admin/dashboard' element={<AdminDashboard/> } /> 
         </Routes>
       </BrowserRouter>
       <ToastContainer />

@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import cors from "cors"; // Import cors middleware
 import nocache from 'nocache';
+import adminRouter from "./routes/adminRouter.js";
 dotenv.config()
 const app=express()
 const { PORT, MONGO_URL } = process.env;
@@ -25,6 +26,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/api',userRoute)
+app.use('/api/admin',adminRouter)
 app.use(notFound)
 app.use(errorHandler)  // If the notFound middleware is triggered, it will pass the error to the errorHandler middleware.
 // If any other error occurs in your application, it will also be passed to the errorHandler middleware.

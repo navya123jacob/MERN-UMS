@@ -14,7 +14,7 @@ const LoginScreen = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [login] = useLoginMutation();
-  const { userInfo } = useSelector((state) => state.auth);
+  const { userInfo } = useSelector((state) => state.adminAuth);
 
   const validateForm = () => {
     

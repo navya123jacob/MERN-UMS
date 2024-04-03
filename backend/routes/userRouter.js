@@ -2,7 +2,7 @@ import express from 'express';
 import { HomeUser, registeruserpost, loginuserpost, logout, updateuser, getUserProfile } from '../Controllers/userController.js';
 import { protect } from '../middleware/AuthMiddleware.js';
 import multer from 'multer';
-import path from 'path'; // Import path module
+
 
 const userRoute = express.Router();
 

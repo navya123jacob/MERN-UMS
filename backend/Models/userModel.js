@@ -26,8 +26,8 @@ const userSchema=new mongoose.Schema({
         default:false
     },
     is_Admin:{
-        type:Number,
-        default:0
+        type:Boolean,
+        default:false
     },
     is_blocked:{
         type:Boolean,
@@ -35,7 +35,7 @@ const userSchema=new mongoose.Schema({
     },
     image:{
         type:String,
-        default:'https://img.freepik.com/premium-vector/young-man-face-avater-vector-illustration-design_968209-13.jpg'
+        default:'https://res.cloudinary.com/dvgwqkegd/image/upload/v1712087772/q4df3ctpiiigpprburug.jpg'
     }
 
 })

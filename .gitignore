@@ -1,2 +1,4 @@
 node_modules
 .env
+/backend/utils/CloudinaryConfig.js
+/backend/middleware/AdminProtect.js
