@@ -6,7 +6,8 @@ const AdminHome = () => {
   return (
     <>
       <HeaderAdmin />
-       <AdminHomeBody /> 
+      <div className='admin-log-screen-bg'><AdminHomeBody /> </div>
+       
     </>
   )
 }

@@ -10,16 +10,15 @@ import { useNavigate } from "react-router-dom";
 const EditProfile = () => {
   const navigate = useNavigate();
   const userInfo = useSelector((state) => state.auth.userInfo);
-  const current = useSelector((state) => state.auth.document);
-  const id = userInfo?.id;
-  const { data, isLoading, isError } = useGetUserByIdQuery(id);
+  const { data, isLoading, isError } = useGetUserByIdQuery(userInfo?.id);
   const [editUser] = useEditUserMutation();
   const [formData, setFormData] = useState({
     Fname: "",
     Lname: "",
     email: "",
     mno: "",
-    image: null, // Add state for the image
+    password: "", // Added password field
+    image: null,
   });
   const [errors, setErrors] = useState({});
   const dispatch = useDispatch();
@@ -31,7 +30,8 @@ const EditProfile = () => {
         Lname: data.Lname,
         email: data.email,
         mno: data.mno,
-        image: null, // Initialize image state
+        password: '', 
+        image: null,
       });
     }
   }, [data]);
@@ -44,24 +44,76 @@ const EditProfile = () => {
     });
   };
 
-  const handleImageChange = async (e) => {
-    await setFormData({
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!['image/jpeg', 'image/png', 'image/gif'].includes(file.type)) {
+      setErrors({ ...errors, image: 'Please select a valid image file (JPEG, PNG, or GIF).' });
+      return;
+    }
+
+    if (file.size > 1024 * 1024) {
+      setErrors({ ...errors, image: 'Image size should be less than 1MB.' });
+      return;
+    }
+
+    setFormData({
       ...formData,
-      image: e.target.files[0], 
+      image: file,
     });
-    console.log(formData.image,e.target.files[0])
   };
 
   const validateForm = () => {
+    
     let errors = {};
     let isValid = true;
-
-    // Validation logic...
-
+  
+    if (!formData.Fname.trim()) {
+      errors.Fname = "First name is required.";
+      isValid = false;
+    }
+  
+    if (!formData.Lname.trim()) {
+      errors.Lname = "Last name is required.";
+      isValid = false;
+    }
+  
+    if (!formData.mno.toString().trim()) {
+      errors.mno = "Mobile number is required.";
+      isValid = false;
+    } else if (!/^\d{10}$/.test(formData.mno.toString().trim())) {
+      errors.mno = "Mobile number must be 10 digits.";
+      isValid = false;
+    } else if (/^0+$/.test(formData.mno.toString().trim())) {
+      errors.mno = "Mobile number should not be all zeros.";
+      isValid = false;
+    }
+  
+    if (formData.password && formData.password.trim()) {
+      const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+      if (!strongPasswordRegex.test(formData.password)) {
+        errors.password =
+          "Password must be valid.";
+        isValid = false;
+      }
+    }
+    if (formData.image) {
+      const allowedImageTypes = ["image/jpeg", "image/png", "image/gif"];
+      if (!allowedImageTypes.includes(formData.image.type)) {
+        errors.image = "Please upload an image file (JPEG, PNG, GIF).";
+        isValid = false;
+      }
+      if (formData.image.size > 1024 * 1024) {
+        errors.image = "Image size should be less than 1MB.";
+        isValid = false;
+      }
+    }
+  
     setErrors(errors);
     return isValid;
   };
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) {
@@ -73,7 +125,12 @@ const EditProfile = () => {
       formDataToSend.append("Lname", formData.Lname);
       formDataToSend.append("email", formData.email);
       formDataToSend.append("mno", formData.mno);
-      formDataToSend.append("image", formData.image);
+      if (formData.image) {
+        formDataToSend.append("image", formData.image);
+      }
+      if (formData.password) {
+        formDataToSend.append("password", formData.password);
+      }
 
       const edited = await editUser(formDataToSend);
       dispatch(setDocument({ ...edited }));
@@ -143,6 +200,18 @@ const EditProfile = () => {
               <Form.Text className="text-danger">{errors.mno}</Form.Text>
             )}
           </Form.Group>
+          <Form.Group controlId="password">
+            <Form.Label>New Password</Form.Label>
+            <Form.Control
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+            />
+            {errors.password && (
+              <Form.Text className="text-danger">{errors.password}</Form.Text>
+            )}
+          </Form.Group>
           <Form.Group controlId="image">
             <Form.Label>Profile Image</Form.Label>
             <Form.Control
@@ -150,14 +219,23 @@ const EditProfile = () => {
               name="image"
               onChange={handleImageChange}
             />
+            {errors.image && (
+              <Form.Text className="text-danger">{errors.image}</Form.Text>
+            )}
           </Form.Group>
-          {formData.image && ( // Display the uploaded image if available
-            <img
-              src={URL.createObjectURL(formData.image)}
-              alt="Profile"
-              style={{ width: "100px", height: "auto", marginTop: "10px" }}
-            />
-          )}
+          {formData.image ? (
+  <img
+    src={URL.createObjectURL(formData.image)}
+    alt="Profile"
+    style={{ width: "100px", height: "auto", marginTop: "10px" }}
+  />
+) : (
+  <img
+    src={data.image}
+    alt="Profile"
+    style={{ width: "100px", height: "auto", marginTop: "10px" }}
+  />
+)}
           <Button variant="dark m-2" type="submit">
             Save Changes
           </Button>

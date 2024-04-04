@@ -47,7 +47,7 @@ const adminLogout=asyncHandler(async(req,res)=>{
 
 
 const getUsers = asyncHandler(async(req,res)=>{
-    const userData = await User.find({ isAdmin: { $ne: true } }).select('-password').sort({updatedAt:-1});
+    const userData = await User.find({ is_Admin: false }).select('-password').sort({updatedAt:-1});
     res.status(200).json(userData);
    })
 
@@ -57,8 +57,8 @@ const updateUserDetail = asyncHandler(async(req,res)=>{
     const user = await User.findById(req.body._id);
     if(user){
 
-        if (user.profileImage) {
-            const publicIdMatch = user.profileImage.match(/\/upload\/v\d+\/([^./]+)\./);
+        if (user.image) {
+            const publicIdMatch = user.image.match(/\/upload\/v\d+\/([^./]+)\./);
             if (publicIdMatch && publicIdMatch[1]) {
                 const publicId = publicIdMatch[1];
                 await cloudinary.uploader.destroy(publicId);
@@ -70,7 +70,7 @@ const updateUserDetail = asyncHandler(async(req,res)=>{
         if (req.file) {
             try {
                 const result = await cloudinary.uploader.upload(req.file.path);
-                user.profileImage = result.secure_url;
+                user.image = result.secure_url;
             } catch (error) {
                 console.error('Cloudinary upload error:', error);
                 return res.status(400).json({ error: 'Failed to upload image to Cloudinary' });
@@ -87,12 +87,7 @@ const updateUserDetail = asyncHandler(async(req,res)=>{
     
         const updatedUser = await user.save()
     
-        res.status(200).json({
-           _id: updatedUser._id,
-           name:updatedUser.name,
-           email:updatedUser.email,
-           profileImage:updatedUser.profileImage,
-        });
+        res.status(200).json(updatedUser);
         
     
        }else{

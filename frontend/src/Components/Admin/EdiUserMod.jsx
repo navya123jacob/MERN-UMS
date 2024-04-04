@@ -1,131 +1,185 @@
 import React, { useEffect, useState } from 'react';
-import {toast} from 'react-toastify';
+import { Modal, Button } from 'react-bootstrap';
+import { toast } from 'react-toastify';
 import { useUpdateUserDetailsMutation } from '../../slices/adminSlice/adminApliSlice.js';
 import Loader from '../../Screens/adminScreens/Loader.jsx';
 
-const EditUsersModal = ({userData,isOpen, onClose}) => {
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [image , setImage] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [selectedImage, setSelectedImage] = useState('');
+const EditUsersModal = ({ userData, setSelectedUser, isOpen, onClose }) => {
+  
+  const [Fname, setFName] = useState('');
+  const [Lname, setLName] = useState('');
+  const [email, setEmail] = useState('');
+  const [image, setImage] = useState('');
+  const [mno, setMno] = useState('');
+  const [selectedImage, setSelectedImage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
-    const [updateProfileDetails, {isLoading}] = useUpdateUserDetailsMutation()
-    
+  const [updateProfileDetails] = useUpdateUserDetailsMutation();
 
-    useEffect(()=>{
-        setName(userData.name);
-        setEmail(userData.email);
-        setImage(userData.profileImage);
-    },[])
+  useEffect(() => {
+    setFName(userData.Fname);
+    setLName(userData.Lname);
+    setEmail(userData.email);
+    setImage(userData.image);
+    setMno(userData.mno);
+  }, [userData]);
 
+  const handleImageChange = (e) => {
+    setErrors({});
+  const file = e.target.files[0];
+  console.log(file)
+  if (!file) return;
 
-    const handleImageChange = (e)=>{
-        const files = e.target.files[0];
-        setSelectedImage(files);
-    }
+  if (!['image/png', 'image/jpeg', 'image/jpg', 'image/webp'].includes(file.type)) {
+    setErrors({ ...errors, image: 'Please select a valid image file (PNG, JPEG, JPG, or WEBP).' });
+    return;
+  }
 
-    const handleSave = async (e) => {
-        e.preventDefault();
-        const isEmailValid = /^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/.test(email);
-        const isNameValid = /^[a-zA-Z _-]{3,16}$/.test(name);
-        let errors = {};
-    
-        if (!isNameValid || name.trim()=='') {
-            errors.name = 'Please Enter a valid name'
+  setSelectedImage(file);
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.src = reader.result;
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const maxWidth = 200; 
+      const maxHeight = 200; 
+      let width = img.width;
+      let height = img.height;
+
+      if (width > height) {
+        if (width > maxWidth) {
+          height *= maxWidth / width;
+          width = maxWidth;
         }
-        if (!isEmailValid || email.trim()=='') {
-            errors.email = 'Please Enter a valid email';
+      } else {
+        if (height > maxHeight) {
+          width *= maxHeight / height;
+          height = maxHeight;
         }
-    
-      if(Object.keys(errors).length > 0){
-          toast.error(errors.name);
-          toast.error(errors.email);
-          return;
       }
 
-        if (password !== confirmPassword) {
-            toast.error('Passwords do not match');
-            return;
-        }
-    
-        try {
-            const formData = new FormData();
-            formData.append('_id', userData._id);
-            formData.append('name', name);
-            formData.append('email', email);
-            formData.append('password', password);
-            formData.append('image', selectedImage);
-            const res = await updateProfileDetails(formData).unwrap();
-          
-            toast.success('Profile updated');
-           
-            onClose();
-        } catch (err) {
-            toast.error(err?.data?.message||err.message);
-        }
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(img, 0, 0, width, height);
+      const dataUrl = canvas.toDataURL('image/png');
+      setImage(dataUrl);
     };
+  };
+  reader.readAsDataURL(file);
+};
+  const handleSave = async () => {
+    setIsLoading(true);
 
+    const isEmailValid = /^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/.test(email);
+    const isFNameValid = /^[a-zA-Z _-]{3,16}$/.test(Fname);
+    const isLNameValid = /^[a-zA-Z _-]{3,16}$/.test(Lname);
+    const isMnoValid = /^\d{10}$/.test(mno);
 
+    const newErrors = {...errors};
+    if (!isFNameValid || Fname.trim() === '') {
+      newErrors.Fname = 'Please Enter a valid first name';
+    }
+    if (!isLNameValid || Lname.trim() === '') {
+      newErrors.Lname = 'Please Enter a valid last name';
+    }
+    if (!isEmailValid || email.trim() === '') {
+      newErrors.email = 'Please Enter a valid email';
+    }
+    if (!isMnoValid || mno.toString().trim() === '') {
+      newErrors.mno = 'Please Enter a valid mobile number';
+    }
 
-  
-  return (
-    <div className={`fixed z-10 inset-0 overflow-y-auto ${isOpen ? '' : 'hidden'}`}>
-    <form>
-    <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-      <div className="fixed inset-0 transition-opacity" aria-hidden="true">
-        <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
-      </div>
+    if (selectedImage && !selectedImage.type.startsWith('image/')) {
+      newErrors.image = 'Please select an image file.';
+    }
 
-      <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       
-      <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-        <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-          <div className="sm:flex sm:items-start">
-            <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-              <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Edit Profile</h3>
-                {selectedImage ? (<img src={URL.createObjectURL(selectedImage)} className='h-28 w-28 rounded-full' alt="Selected" />) :
-                    ( <img src={image} alt="" className='h-28 w-28 rounded-full' /> ) }
-              <div className="mb-4">
-                <label htmlFor="profileImage" className="block text-sm font-medium text-gray-700">Profile Image</label>
-                <input type="file" onChange={handleImageChange} accept="image/*" name='image' className="mt-1 mb-2 block w-full shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500 border-gray-300 rounded-md" />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
-                <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="mt-1 mb-2 ps-1 block w-full h-8 shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500 border-gray-300 rounded-md" />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email Address</label>
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1 mb-2 ps-1 block w-full h-8 shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500 border-gray-300 rounded-md" />
-              </div>
-             
-             <div className="mb-4">
-                    <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">New Password</label>
-                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1 mb-2 ps-1 block w-full h-8 shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500 border-gray-300 rounded-md" />
-                  </div>
-                  <div className="mb-4">
-                    <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirm Password</label>
-                    <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="mt-1 mb-2 ps-1 block w-full h-8 shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500 border-gray-300 rounded-md" />
-                  </div>
-             
-            </div>
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('_id', userData._id);
+      formData.append('Fname', Fname);
+      formData.append('Lname', Lname);
+      formData.append('email', email);
+      formData.append('mno', mno);
+      if(selectedImage){
+        formData.append('image', selectedImage);
+      }
+     
+      const res = await updateProfileDetails(formData).unwrap();
+
+      toast.success('Profile updated');
+      setIsLoading(false);
+      onClose();
+    } catch (err) {
+      
+      toast.error(err?.data?.message || err.message);
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Modal show={isOpen} onHide={onClose}>
+      <Modal.Header closeButton>
+        <Modal.Title>Edit Profile</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <div className="text-center">
+          {image && (
+            <img src={image} className="rounded-full mx-auto mb-4" alt="Current Profile" style={{ maxWidth: '200px', maxHeight: '200px' }} />
+          )}
+          {errors.image && <div className="text-red-500 mb-2">{errors.image}</div>}
+          <div className="mb-4">
+            <label htmlFor="profileImage" className="block text-sm font-medium text-gray-700">Profile Image</label>
+            <input type="file" onChange={handleImageChange} accept="image/*" name='image' className="mt-1 mb-2 block w-full shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500 border-gray-300 rounded-md" />
+          </div>
+          <div className="mb-4">
+            <label htmlFor="Fname" className="block text-sm font-medium text-gray-700">First Name</label>
+            <input type="text" value={Fname} onChange={(e) => setFName(e.target.value)} className="mt-1 mb-2 ps-1 block w-full h-8 shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500 border-gray-300 rounded-md" />
+            {errors.Fname && <div className="text-red-500">{errors.Fname}</div>}
+          </div>
+          <div className="mb-4">
+            <label htmlFor="Lname" className="block text-sm font-medium text-gray-700">Last Name</label>
+            <input type="text" value={Lname} onChange={(e) => setLName(e.target.value)} className="mt-1 mb-2 ps-1 block w-full h-8 shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500 border-gray-300 rounded-md" />
+            {errors.Lname && <div className="text-red-500">{errors.Lname}</div>}
+          </div>
+          <div className="mb-4">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email Address</label>
+            <input type="email" readOnly disabled value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1 mb-2 ps-1 block w-full h-8 shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500 border-gray-300 rounded-md" />
+            {errors.email && <div className="text-red-500">{errors.email}</div>}
+          </div>
+          <div className="mb-4">
+            <label htmlFor="mno" className="block text-sm font-medium text-gray-700">Mobile Number</label>
+            <input type="text" value={mno} onChange={(e) => setMno(e.target.value)} className="mt-1 mb-2 ps-1 block w-full h-8 shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500 border-gray-300 rounded-md" />
+            {errors.mno && <div className="text-red-500">{errors.mno}</div>}
           </div>
         </div>
-        {isLoading && <Loader />}
-        <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-          <button onClick={handleSave} type="submit" className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-500 text-base font-medium text-white hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
-            Save
-          </button>
-          <button onClick={onClose} type="button" className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
-    </form>
-  </div>
-  )
-}
+      </Modal.Body>
+      <Modal.Footer>
+        {isLoading ? (
+          <Loader />
+        ) : (
+          <>
+            <Button variant="primary" onClick={handleSave}>
+              Save
+            </Button>
+            <Button variant="secondary" onClick={onClose}>
+              Cancel
+            </Button>
+          </>
+        )}
+      </Modal.Footer>
+    </Modal>
+  );
+};
 
-export default EditUsersModal
+export default EditUsersModal;

@@ -2,11 +2,11 @@
   margin-top: 20px;
   padding: 50px;
   
-  width: 60%;
+  width: 100%;
 }
 
 .admin-dashboard-content {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
@@ -38,6 +38,7 @@
 }
 
 .admin-table-wrapper {
+  width: 100%;
   overflow-x: auto;
 }
 
@@ -117,7 +118,7 @@
  
 
  .admin-screen-bg {
-  background-image: url('../../assets/adminlogin.jpg');
+  background-image: url('../../assets/adminlogin2.jpg');
   min-height: 130vh;
   display: flex;
   justify-content: center;
