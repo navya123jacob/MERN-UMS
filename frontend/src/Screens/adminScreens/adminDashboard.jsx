@@ -9,6 +9,8 @@ import Loader from "./Loader.jsx";
 import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.css';
 import './AdminStyle.css';
+import {useDispatch,useSelector} from 'react-redux'
+import { useNavigate} from 'react-router-dom'
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
@@ -40,6 +42,15 @@ const AdminDashboard = () => {
 
   const [getUsers, { isLoading }] = useGetUsersMutation();
   const [deleteusers, { removeLoading }] = useDeleteUserMutation();
+  const navigate = useNavigate();
+  const {adminInfo} = useSelector((state)=> state.adminAuth );
+  
+  useEffect(()=>{
+    if(adminInfo==null){
+      navigate('/admin');
+      
+    }
+  },[])
 
   // Fetch users initially
   useEffect(() => {

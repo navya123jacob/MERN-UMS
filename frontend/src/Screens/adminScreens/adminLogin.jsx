@@ -19,6 +19,7 @@ const AdminLogin = () => {
     const [adminLogin, {isLoading}] = useAdminLoginMutation();
   
     const {adminInfo} = useSelector((state)=> state.adminAuth );
+    console.log("adming : ",adminInfo);
   
     useEffect(()=>{
       if(adminInfo){

@@ -1,14 +1,8 @@
 import asyncHandler from 'express-async-handler' //If an error occurs within the wrapped function, it's automatically passed to Express's error handling middleware without needing explicit try...catch
 import { User } from '../Models/userModel.js';
 import generateToken from '../utils/generateToken.js';
+import { cloudinary } from '../utils/CloudinaryConfig.js';
 
-import {v2 as cloudinary} from 'cloudinary';
-          
-cloudinary.config({ 
-  cloud_name: 'dvgwqkegd', 
-  api_key: '133934819117526', 
-  api_secret: 'tNf2c4aiiYrHXcvPFoASS1Eg_Gk' 
-});
 const HomeUser = asyncHandler(async(req, res) => {
     let id=req.query.id
     let user=await User.findOne({_id:id})

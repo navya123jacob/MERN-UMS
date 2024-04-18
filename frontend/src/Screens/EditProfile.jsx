@@ -24,13 +24,17 @@ const EditProfile = () => {
   const dispatch = useDispatch();
 
   React.useEffect(() => {
+    if(!userInfo){
+     navigate('/login')
+    }
+    
     if (data) {
       setFormData({
         Fname: data.Fname,
         Lname: data.Lname,
         email: data.email,
         mno: data.mno,
-        password: '', 
+        password: "",
         image: null,
       });
     }
@@ -48,15 +52,15 @@ const EditProfile = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (!['image/jpeg', 'image/png', 'image/gif'].includes(file.type)) {
-      setErrors({ ...errors, image: 'Please select a valid image file (JPEG, PNG, or GIF).' });
+    if (!["image/jpeg", "image/png", "image/gif"].includes(file.type)) {
+      setErrors({
+        ...errors,
+        image: "Please select a valid image file (JPEG, PNG, or GIF).",
+      });
       return;
     }
 
-    if (file.size > 1024 * 1024) {
-      setErrors({ ...errors, image: 'Image size should be less than 1MB.' });
-      return;
-    }
+    
 
     setFormData({
       ...formData,
@@ -65,20 +69,19 @@ const EditProfile = () => {
   };
 
   const validateForm = () => {
-    
     let errors = {};
     let isValid = true;
-  
+
     if (!formData.Fname.trim()) {
       errors.Fname = "First name is required.";
       isValid = false;
     }
-  
+
     if (!formData.Lname.trim()) {
       errors.Lname = "Last name is required.";
       isValid = false;
     }
-  
+
     if (!formData.mno.toString().trim()) {
       errors.mno = "Mobile number is required.";
       isValid = false;
@@ -89,12 +92,12 @@ const EditProfile = () => {
       errors.mno = "Mobile number should not be all zeros.";
       isValid = false;
     }
-  
+
     if (formData.password && formData.password.trim()) {
-      const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+      const strongPasswordRegex =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
       if (!strongPasswordRegex.test(formData.password)) {
-        errors.password =
-          "Password must be valid.";
+        errors.password = "Password must be valid.";
         isValid = false;
       }
     }
@@ -104,16 +107,13 @@ const EditProfile = () => {
         errors.image = "Please upload an image file (JPEG, PNG, GIF).";
         isValid = false;
       }
-      if (formData.image.size > 1024 * 1024) {
-        errors.image = "Image size should be less than 1MB.";
-        isValid = false;
-      }
+      
     }
-  
+
     setErrors(errors);
     return isValid;
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) {
@@ -224,18 +224,18 @@ const EditProfile = () => {
             )}
           </Form.Group>
           {formData.image ? (
-  <img
-    src={URL.createObjectURL(formData.image)}
-    alt="Profile"
-    style={{ width: "100px", height: "auto", marginTop: "10px" }}
-  />
-) : (
-  <img
-    src={data.image}
-    alt="Profile"
-    style={{ width: "100px", height: "auto", marginTop: "10px" }}
-  />
-)}
+            <img
+              src={URL.createObjectURL(formData.image)}
+              alt="Profile"
+              style={{ width: "100px", height: "auto", marginTop: "10px" }}
+            />
+          ) : (
+            <img
+              src={data.image}
+              alt="Profile"
+              style={{ width: "100px", height: "auto", marginTop: "10px" }}
+            />
+          )}
           <Button variant="dark m-2" type="submit">
             Save Changes
           </Button>

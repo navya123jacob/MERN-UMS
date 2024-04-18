@@ -4,10 +4,11 @@ import { Link } from 'react-router-dom';
 import './AdminWelcome.css';
 const AdminHomeBody = () => {
   const { adminInfo } = useSelector((state) => state.adminAuth);
+  
   return (
     <div className="container bodyadmin">
       <div className="heading">
-        <h1>Welcome Back Navya {adminInfo.name} !</h1>
+        <h1>Welcome Back Navya {adminInfo?.name} !</h1>
         <p>You are now logged in to your account.</p>
       </div>
 
@@ -18,7 +19,7 @@ const AdminHomeBody = () => {
           </svg>
           <div>
             <h3 className="card-heading">Admin</h3>
-            <p>{adminInfo.email}</p>
+            <p>{adminInfo?.email}</p>
           </div>
         </div>
         <div className="card-content">

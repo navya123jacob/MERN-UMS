@@ -35,7 +35,7 @@ const userSchema=new mongoose.Schema({
     },
     image:{
         type:String,
-        default:'https://res.cloudinary.com/dvgwqkegd/image/upload/v1712087772/q4df3ctpiiigpprburug.jpg'
+        default:'https://res.cloudinary.com/dvgwqkegd/image/upload/v1713420492/intro-1584547451_lgxmf7.jpg'
     }
 
 })

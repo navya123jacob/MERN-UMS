@@ -1,16 +1,7 @@
 import asyncHandler from "express-async-handler";
 import { User } from "../Models/userModel.js";
 import generateToken from "../utils/generateToken.js";
-
-import {v2 as cloudinary} from 'cloudinary';
-          
-cloudinary.config({ 
-  cloud_name: 'dvgwqkegd', 
-  api_key: '133934819117526', 
-  api_secret: 'tNf2c4aiiYrHXcvPFoASS1Eg_Gk' 
-});
-
-
+import { cloudinary } from "../utils/CloudinaryConfig.js";
 const authAdmin = asyncHandler(async(req,res)=>{
     const {email,password} = req.body;
 
